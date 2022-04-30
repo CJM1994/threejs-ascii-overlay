@@ -1,26 +1,26 @@
-import { useRef, useState } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { useRef, useState, useEffect, useMemo } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei';
 import { AsciiEffect } from 'three-stdlib';
 
-function Box(props) {
+function Octahedron(props) {
   // This reference gives us direct access to the THREE.Mesh object
   const ref = useRef()
   // Hold state for hovered and clicked events
   const [hovered, hover] = useState(false)
   const [clicked, click] = useState(false)
   // Subscribe this component to the render-loop, rotate the mesh every frame
-  useFrame((state, delta) => (ref.current.rotation.x += 0.01))
+  useFrame((state, delta) => (ref.current.rotation.x = ref.current.rotation.y += delta / 2))
   // Return the view, these are regular Threejs elements expressed in JSX
   return (
     <mesh
       {...props}
       ref={ref}
-      scale={clicked ? 1.5 : 1}
+      scale={clicked ? 3 : 1}
       onClick={(event) => click(!clicked)}
       onPointerOver={(event) => hover(true)}
       onPointerOut={(event) => hover(false)}>
-      <boxGeometry args={[1, 1, 1]} />
+      <octahedronGeometry args={[1, 0, 0]} />
       <meshStandardMaterial color={hovered ? 'white' : 'orange'} />
     </mesh>
   )
@@ -64,12 +64,12 @@ function AsciiRenderer({ renderIndex = 1, characters = ' .:-+*=%@#', ...options 
 export default function App() {
   return (
     <Canvas>
+      <color attach='background' args={['black']} />
       <OrbitControls />
       <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
       <pointLight position={[-10, -10, -10]} />
-      <Box position={[-1.2, 0, 0]} />
-      <Box position={[1.2, 0, 0]} />
-      
+      <Octahedron position={[0, 0, 0]} />
+      <AsciiRenderer invert />
     </Canvas>
   )
 }
